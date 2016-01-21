@@ -1,0 +1,89 @@
+﻿<!doctype html>
+<html lang='en-GB'>
+
+<head>
+    <meta charset='utf-8'>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>Progress Bars Demo</title>
+
+    <link rel="stylesheet" type="text/css" href="css/bootstrap.min.css" />
+    <link rel="stylesheet" type="text/css" href="css/style.css" />
+    <script src="scripts/jquery.min.js"></script>
+    <script src="scripts/bootstrap.min.js"></script>
+</head>
+
+<body>
+
+    <div class="container-fluid" >
+        <div class="col-sm-4">
+            <h2>Progress Bars Demo</h2>
+            <div id='output'></div>
+        </div>
+   </div>
+
+
+    <script id='template' type='text/ractive'>
+
+        {{#each bars:i}}
+        <!-- linear-gradient (orientation of the color, fill color and width, gradient color and amount -->
+        <div class="barContainer" style="background: linear-gradient(90deg, {{bars[i].value <= 100 ? '#ADD8E6' : 'red'}} {{bars[i].value}}%, #FFFFFF 0%); border: 1px solid {{selectedBarIndex == i ? '#333333' : '#A9A9A9'}};">
+            <div>{{bars[i].value}}%</div>
+        </div>
+        {{/each}}
+
+        <!--<div id="controls" style="margin: 10px 20px 10px 35px;">-->
+        <div id="controls" style="min-width: 300px;">
+            <select value='{{selectedBar}}' class="">
+                {{#each bars:i}}
+                <option value='{{i}}'>{{this.name}}</option>
+                {{/each}}
+            </select>
+
+            <div style="display:inline-block;">
+                {{#each buttons}}
+                <button on-click='updateBar:{{this}}'>
+                    {{#if this > 0}}+{{/if}}{{this}}
+                </button>
+                {{/each}}
+            </div>
+        </div>
+
+    </script>
+
+
+    <script src="scripts/ractive.min.js"></script>
+    <script>
+        var ractive = new Ractive({
+            el: '#output',
+            template: '#template',
+            data: {
+                bars: [{ name: 'progress bar 1', value: 20 }, { name: 'progress bar 2', value: 30 }, { name: 'progress bar 3', value: 100 }],
+                buttons: [-25, -10, +10, +25],
+                selectedBarIndex: 0
+            }
+        });
+
+        // set the selected progress bar everytime the selected item in the dropdown changes
+        ractive.observe('selectedBar', function (index) {
+            ractive.set('selectedBarIndex', index);
+        });
+
+
+        // function to update the bar when buttons are triggered
+        ractive.on('updateBar', function (event, value) {
+            var bars = ractive.get('bars');
+            var selectedBarIndex = ractive.get('selectedBarIndex');
+            var prevBarValue = bars[selectedBarIndex].value;
+            var newValue = prevBarValue + value;
+
+            // prevent the value from being less than 0
+            newValue = newValue < 0 ? 0 : newValue;
+
+            ractive.set('bars.' + selectedBarIndex + '.value', newValue);
+            ractive.update('bars.' + selectedBarIndex + '.value', newValue);
+        });
+    </script>
+
+</body>
+</html>
